@@ -23,7 +23,7 @@ const props = defineProps( {
   soure: {
     type: String,
     required: true,
-    default: '../soruce/Walking.fbx',
+    default: '../assets/Walking.fbx',
   },
   width: {
     type: Number,
@@ -83,8 +83,8 @@ function stop() {
 }
 async function init() {
 
-  let path = await import(props.soure)
-  let actions_walk_path = await import('../soruce/Walking_walk.fbx')
+  let path = props.soure
+  let actions_walk_path = await import('../assets/Walking_walk.fbx')
 
   const container = document.getElementById( id.value );
 
@@ -130,7 +130,7 @@ async function init() {
   const loader = new FBXLoader();
   const actionsLoader = new FBXLoader();
 
-  loader.load( path.default , function ( object ) {
+  loader.load( path , function ( object ) {
 
     mixer = new THREE.AnimationMixer( object );
     actions.push((object.animations[ 0 ]));
