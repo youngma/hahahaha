@@ -21,11 +21,22 @@ export const CurrentAnimation = (name) => {
     return animations[0].animation
   }
 }
-export const Play = (mixer, name) => {
+export const Play = (mixer, camera,  name) => {
 
   mixer.stopAllAction()
   const action = mixer.clipAction( CurrentAnimation(name) );
   // action.loop = THREE.LoopOnce
+
+  // camera.position.set( 0, 100, 320 );
+
+  if (action.camera) {
+    const { position } = action.camera
+    if (position) {
+      const { x, y ,z } = position
+      camera.position.set( x || -100,  y || 100,  z || 320 );
+    }
+  } else {
+  }
 
   return action;
 
@@ -48,6 +59,7 @@ export const Load = async () => {
   let actions_standing_clap_path = await import('../assets/Standing Clap.fbx')
   let actions_rally_path = await import('../assets/Rallying.fbx')
   let actions_listining_to_music_path = await import('../assets/Listening To Music.fbx')
+  let actions_jumping_path = await import('../assets/Jumping.fbx')
 
 
   actionsLoader.load( actions_walk_path.default , function ( object ) {
@@ -61,11 +73,22 @@ export const Load = async () => {
 
   actionsLoader.load( actions_turn_to_running_path.default , function ( object ) {
     const animation = {
-      name : '뒤돌아 나가', animation: object.animations[ 0 ]
+      name : '뒤돌아 나가', animation: object.animations[ 0 ],
+      camera: {
+        position: {
+          x: -100, y: 100, z:320
+        }
+      }
     }
     animations.push(animation);
   });
 
+  actionsLoader.load( actions_jumping_path.default , function ( object ) {
+    const animation = {
+      name : '점프', animation: object.animations[ 0 ]
+    }
+    animations.push(animation);
+  });
 
   actionsLoader.load( actions_crouched_walking_path.default , function ( object ) {
     const animation = {

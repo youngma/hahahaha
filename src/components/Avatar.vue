@@ -91,17 +91,11 @@ idx = 0;
 
 function play() {
 
-  action = Animations.Play(mixer, currentAction.value)
+  action = Animations.Play(mixer, camera, currentAction.value)
   action.play();
   // idx += 1;
-  //
-  // if (actions.length === idx) {
-  //   idx = 0;
-  // }
-  //
   // action = mixer.clipAction( actions[idx] );
   // action.setLoop(THREE.LoopRepeat, 3);
-  action.play();
 }
 
 function stop() {
@@ -117,8 +111,8 @@ async function init() {
   const container = document.getElementById( id.value );
 
   camera = new THREE.PerspectiveCamera( 45, width/height, 1, 3000 );
-  camera.position.set( 100, 100, 220 );
-  camera.focus = 1
+  camera.position.set( -100, 100, 320 );
+  camera.focus = 2
   fov = camera.fov
 
   scene = new THREE.Scene();
@@ -164,9 +158,10 @@ async function init() {
   loader.load( path , function ( object ) {
 
     mixer = new THREE.AnimationMixer( object );
+    mixer.existingAction(object.animations[ 0 ])
     action = mixer.clipAction(Animations.CurrentAnimation());
-    // action.loop = THREE.LoopOnce ;
 
+    // action.loop = THREE.LoopOnce ;
     action.play();
 
     // action.stop();
@@ -191,7 +186,9 @@ async function init() {
   container.appendChild( renderer.domElement );
 
   controls = new OrbitControls( camera, renderer.domElement );
-  controls.target.set( 0, 90, 10 );
+  controls.target.set( 0, 80, 10 );
+
+  controls.enabled = false
   controls.update();
 
   window.addEventListener( 'resize', onWindowResize );
