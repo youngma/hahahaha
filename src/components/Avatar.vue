@@ -1,6 +1,20 @@
 <template>
   <div content="avatar-container">
-    <div :id="id" class="container" >
+    <el-select
+      v-model="currentAction"
+      class="m-2"
+      size="large"
+      style="width: 240px"
+    >
+      <el-option
+        v-for="item in actions"
+        :key="item.name"
+        :label="item.name"
+        :value="item.name"
+      />
+    </el-select>
+
+    <div :id="id" class="container">
 
     </div>
 
@@ -13,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, onMounted } from 'vue'
+import { ref, defineProps, onMounted, computed } from 'vue'
 
 const props = defineProps( {
   name: {
@@ -27,11 +41,11 @@ const props = defineProps( {
   },
   width: {
     type: Number,
-    default: 200,
+    default: 300,
   },
   height: {
     type: Number,
-    default: 200,
+    default: 300,
   }
 })
 
@@ -40,22 +54,32 @@ const id = ref(props.name)
 // const path = props.soure;
 
 import * as THREE from 'three';
+import * as Animations from '../utils/ActionsUtils.js';
 
 import Stats from 'three/addons/libs/stats.module.js';
 
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import {Get} from "../utils/ActionsUtils.js";
 
 // import path from props.soure
 
 
-let camera, scene, renderer, stats;
+const actions = computed(() => {
+  console.log(Animations.Get())
+  return Animations.Get();
+})
+
+const currentAction = ref(null);
+
+let camera, scene, renderer, stats, mixer, action;
+
+let fov = 0, zoom = 1.0, inc = -0.01;
 
 const clock = new THREE.Clock();
 
-let mixer;
-let action;
-let actions = [];
+let controls;
+// let actions = [];
 let idx = 0;
 
 onMounted(async () => {
@@ -66,30 +90,36 @@ onMounted(async () => {
 idx = 0;
 
 function play() {
-  idx += 1;
 
-  if (actions.length === idx) {
-    idx = 0;
-  }
-
-  console.log(idx)
-
-  action = mixer.clipAction( actions[idx] );
+  action = Animations.Play(mixer, currentAction.value)
+  action.play();
+  // idx += 1;
+  //
+  // if (actions.length === idx) {
+  //   idx = 0;
+  // }
+  //
+  // action = mixer.clipAction( actions[idx] );
+  // action.setLoop(THREE.LoopRepeat, 3);
   action.play();
 }
 
 function stop() {
   action.stop();
 }
+
+
 async function init() {
 
   let path = props.soure
-  let actions_walk_path = await import('../assets/Walking_walk.fbx')
+  const { width, height } = props;
 
   const container = document.getElementById( id.value );
 
-  camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-  camera.position.set( 100, 100, 200 );
+  camera = new THREE.PerspectiveCamera( 45, width/height, 1, 3000 );
+  camera.position.set( 100, 100, 220 );
+  camera.focus = 1
+  fov = camera.fov
 
   scene = new THREE.Scene();
   // scene.background = null;
@@ -128,33 +158,28 @@ async function init() {
 
   // model
   const loader = new FBXLoader();
-  const actionsLoader = new FBXLoader();
+
+  // Animations.Load();
 
   loader.load( path , function ( object ) {
 
     mixer = new THREE.AnimationMixer( object );
-    actions.push((object.animations[ 0 ]));
-
-    action = mixer.clipAction( object.animations[ 0 ] );
+    action = mixer.clipAction(Animations.CurrentAnimation());
+    // action.loop = THREE.LoopOnce ;
 
     action.play();
+
     // action.stop();
 
     object.traverse( function ( child ) {
       if ( child.isMesh ) {
         child.castShadow = true;
         child.receiveShadow = true;
-
       }
     });
     scene.add( object );
   });
 
-  actionsLoader.load( actions_walk_path.default , function ( object ) {
-    actions.push((object.animations[ 0 ]));
-  });
-
-  const { width, height } = props;
 
   renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
   renderer.setPixelRatio( window.devicePixelRatio );
@@ -165,8 +190,8 @@ async function init() {
   // renderer.setClearAlpha( 0.1 );
   container.appendChild( renderer.domElement );
 
-  const controls = new OrbitControls( camera, renderer.domElement );
-  controls.target.set( 0, 100, 0 );
+  controls = new OrbitControls( camera, renderer.domElement );
+  controls.target.set( 0, 90, 10 );
   controls.update();
 
   window.addEventListener( 'resize', onWindowResize );
@@ -184,7 +209,7 @@ function onWindowResize() {
   renderer.setSize( width, height );
 }
 
-//
+// let fov = camera.fov, zoom = 1.0, inc = -0.01;
 
 function animate() {
 
@@ -193,10 +218,19 @@ function animate() {
   const delta = clock.getDelta();
 
   if ( mixer ) mixer.update( delta );
+
+  // camera.fov = fov * zoom;
+  // zoom += inc;
+  //
+  // if ( zoom > 0.1 ){
+  //   inc = -inc;
+    // zoom += inc;
+  // }
+  camera.updateProjectionMatrix();
+
   renderer.render( scene, camera );
 
   stats.update();
-
 }
 
 </script>
@@ -209,6 +243,7 @@ function animate() {
 
 .container {
   z-index: 9999;
+  margin-top: 10px;
 }
 
 .controller {
@@ -225,6 +260,8 @@ function animate() {
 .controller{
   position: relative;
   z-index: 999993;
+
+  margin-top: 10px;
   //margin-left: -10px;
   //margin-right: -10px;
 }

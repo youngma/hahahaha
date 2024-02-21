@@ -17,7 +17,7 @@
 import { ref, defineProps, onMounted } from 'vue'
 
 import Avatar from "../components/Avatar.vue";
-
+import * as Animations from '../utils/ActionsUtils.js';
 
 const character_source = ref(null)
 
@@ -26,6 +26,7 @@ onMounted(async () => {
 })
 
 async function init() {
+  await Animations.Load();
   let character = await import('../assets/Walking.fbx')
   character_source.value = character.default
 }

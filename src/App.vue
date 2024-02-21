@@ -15,20 +15,23 @@
 
 <style scoped>
 
-.el-container {
 
+body {
 
 }
+
 
 .el-header{
 
 }
 
-
 .el-main {
   position: relative;
   width: 100%;
   left: 0;
+
+  background: #535bf2;
+
 }
 
 </style>
