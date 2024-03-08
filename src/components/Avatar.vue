@@ -37,7 +37,7 @@ const props = defineProps( {
   soure: {
     type: String,
     required: true,
-    default: '../assets/Walking.fbx',
+    default: '../assets/character.fbx',
   },
   width: {
     type: Number,
@@ -127,7 +127,7 @@ async function init() {
   // 그림자
   const dirLight = new THREE.DirectionalLight( 0xffffff, 5 );
   dirLight.position.set( 0, 200, 100 );
-  dirLight.castShadow = true;
+  dirLight.castShadow = false;
   dirLight.shadow.camera.top = 180;
   dirLight.shadow.camera.bottom = - 100;
   dirLight.shadow.camera.left = - 120;
@@ -137,11 +137,11 @@ async function init() {
   // scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
 
   // ground
-  const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 100, 100 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: true } ) );
-
+  const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 0, 0 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false, } ) );
+  //
   mesh.rotation.x = - Math.PI / 2;
   mesh.receiveShadow = true;
-  mesh.opacity = 0.1;
+  mesh.opacity = 0;
 
   scene.add( mesh );
 

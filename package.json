@@ -12,6 +12,8 @@
     "story:preview": "histoire preview"
   },
   "dependencies": {
+    "@tweenjs/tween.js": "^23.1.1",
+    "dat.gui": "^0.7.9",
     "element-plus": "^2.5.6",
     "three": "^0.161.0",
     "vite-plugin-commonjs": "^0.10.1",
